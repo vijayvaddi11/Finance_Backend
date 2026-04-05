@@ -10,6 +10,9 @@ The system is designed with a focus on:
 * Role-based access control
 * Data validation and reliability
 * Scalable API design
+* CRUD and aggregrate apis
+* Input validations and proper error handling
+* Rate limiting (currently configured at 100 requests per ip address for a 15 minute window)
 
 ---
 
@@ -17,7 +20,7 @@ The system is designed with a focus on:
 
 * **Node.js**
 * **Express.js**
-* **PostgreSQL (Supabase)**
+* **PostgreSQL (hosted by Supabase)**
 * **JWT Authentication**
 * **bcryptjs (Password hashing)**
 
@@ -30,8 +33,7 @@ The system is designed with a focus on:
 * User Registration & Login
 * JWT-based Authentication
 * Refresh Token mechanism
-* Role-based access control:
-
+* Role-based access control: (assumed based on the details shared in requirements document)
   * **Viewer** → Read-only access (own data)
   * **Analyst** → Read + analytics (all data)
   * **Admin** → Full control (CRUD + users)
@@ -42,8 +44,7 @@ The system is designed with a focus on:
 
 * Create, Update, Delete transactions
 * Soft delete support (`is_active`)
-* Field validations:
-
+* Various Input validations, such as:
   * Amount (numeric)
   * Type (income/expense)
   * Date format validation
@@ -83,7 +84,7 @@ GET /dashboard/categoryInsights?category=food
 GET /dashboard/recentActivity
 ```
 
-* Latest 15 transactions
+* Last 15 transactions and their insights
 
 ---
 
@@ -94,24 +95,6 @@ GET /dashboard/stats
 ```
 
 * Overall totals (income, expense, balance)
-
----
-
-###  Filtering API
-
-```
-GET /transactions/filter
-```
-
-Supports:
-
-* `type=income | expense`
-* `category=...`
-* `fromDate=YYYY-MM-DD`
-* `toDate=YYYY-MM-DD`
-
-✔ Dynamic query building
-✔ Role-based filtering
 
 ---
 
@@ -152,6 +135,7 @@ Supports:
 * user_id
 * token
 * created_at
+
 
 ---
 
@@ -222,28 +206,10 @@ Authorization: Bearer <access_token>
 ##  Assumptions
 
 * Users have predefined roles
-* Date format is standardized (`YYYY-MM-DD`)
+* Date format is standardized (`DD-MM-YYYY`)
 * Transactions belong to a single user
 * Soft delete is preferred over hard delete
 
----
-
-##  Trade-offs
-
-* Used simple query-based filtering instead of ORM for clarity
-* Minimal validation library (manual validation used)
-* No pagination implemented (can be added easily)
-
----
-
-##  Future Improvements
-
-* Pagination & sorting
-* Full-text search
-* Rate limiting per user
-* Unit & integration tests
-* API documentation with Swagger
-* Caching for dashboard APIs
 
 ---
 
