@@ -1,5 +1,11 @@
 # Finance Data Processing & Access Control Backend
 
+Deployed API URL - https://finance-backend-self.vercel.app/
+
+Deployed API DOCS (Swagger) - https://finance-backend-self.vercel.app/api-docs
+
+Postman collection - [Finance Backend - Zorvyn Postman Collection](https://github.com/vijayvaddi11/Finance_Backend/blob/main/postman/Finance%20backend%20-%20zorvyn.postman_collection.json)
+
 ## Overview
 
 This project is a backend system for a finance dashboard that manages financial transactions, user roles, and provides analytical insights through well-structured APIs.
@@ -144,6 +150,15 @@ All protected routes require:
 ```
 Authorization: Bearer <access_token>
 ```
+
+---
+## API DOCS
+> API docs are availabe at https://finance-backend-self.vercel.app/api-docs
+- I created swagger docs for better documenting of the request body and response structures and ease of accessing the apis without UI.
+- Brief description of routes and their functionality:
+	- Auth route contains APIs related to authentication.
+ 	- Transactions route is for creating, updating, viewing and deleting transactions.
+    - Dashboard route contains APIs for Insights, Trends, Category Insights and Stats.
 
 ---
 
