@@ -1,58 +1,58 @@
-#  Finance Data Processing & Access Control Backend
+# Finance Data Processing & Access Control Backend
 
-##  Overview
+## Overview
 
 This project is a backend system for a finance dashboard that manages financial transactions, user roles, and provides analytical insights through well-structured APIs.
 
 The system is designed with a focus on:
 
-* Clean backend architecture
-* Role-based access control
-* Data validation and reliability
-* Scalable API design
-* CRUD and aggregrate apis
-* Input validations and proper error handling
-* Rate limiting (currently configured at 100 requests per ip address for a 15 minute window)
+- Clean backend architecture
+- Role-based access control
+- Data validation and reliability
+- Scalable API design
+- CRUD and aggregrate apis
+- Input validations and proper error handling
+- Rate limiting (currently configured at 100 requests per ip address for a 15 minute window)
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
-* **Node.js**
-* **Express.js**
-* **PostgreSQL (hosted by Supabase)**
-* **JWT Authentication**
-* **bcryptjs (Password hashing)**
-
----
-
-##  Features
-
-###  Authentication & Authorization
-
-* User Registration & Login
-* JWT-based Authentication
-* Refresh Token mechanism
-* Role-based access control: (assumed based on the details shared in requirements document)
-  * **Viewer** → Read-only access (own data)
-  * **Analyst** → Read + analytics (all data)
-  * **Admin** → Full control (CRUD + users)
+- **Node.js**
+- **Express.js**
+- **PostgreSQL (hosted by Supabase)**
+- **JWT Authentication**
+- **bcryptjs (Password hashing)**
 
 ---
 
-###  Transactions Management
+## Features
 
-* Create, Update, Delete transactions
-* Soft delete support (`is_active`)
-* Various Input validations, such as:
-  * Amount (numeric)
-  * Type (income/expense)
-  * Date format validation
-* Partial updates supported
+### Authentication & Authorization
+
+- User Registration & Login
+- JWT-based Authentication
+- Refresh Token mechanism
+- Role-based access control: (assumed based on the details shared in requirements document)
+    - **Viewer** → Read-only access (own data)
+    - **Analyst** → Read + analytics (all data)
+    - **Admin** → Full control (CRUD + users)
 
 ---
 
-###  Dashboard APIs
+### Transactions Management
+
+- Create, Update, Delete transactions
+- Soft delete support (`is_active`)
+- Various Input validations, such as:
+    - Amount (numeric)
+    - Type (income/expense)
+    - Date format validation
+- Partial updates supported
+
+---
+
+### Dashboard APIs
 
 #### 1. Trends
 
@@ -60,10 +60,10 @@ The system is designed with a focus on:
 GET /dashboard/trends?type=weekly | monthly
 ```
 
-* Weekly / Monthly data
-* Total Income
-* Total Expense
-* Net Balance
+- Weekly / Monthly data
+- Total Income
+- Total Expense
+- Net Balance
 
 ---
 
@@ -73,8 +73,8 @@ GET /dashboard/trends?type=weekly | monthly
 GET /dashboard/categoryInsights?category=food
 ```
 
-* Category-based aggregation
-* Income / Expense split
+- Category-based aggregation
+- Income / Expense split
 
 ---
 
@@ -84,7 +84,7 @@ GET /dashboard/categoryInsights?category=food
 GET /dashboard/recentActivity
 ```
 
-* Last 15 transactions and their insights
+- Last 15 transactions and their insights
 
 ---
 
@@ -94,11 +94,11 @@ GET /dashboard/recentActivity
 GET /dashboard/stats
 ```
 
-* Overall totals (income, expense, balance)
+- Overall totals (income, expense, balance)
 
 ---
 
-##  Access Control Logic
+## Access Control Logic
 
 | Role    | Permissions                |
 | ------- | -------------------------- |
@@ -108,38 +108,39 @@ GET /dashboard/stats
 
 ---
 
-##  Database Design
+## Database Design
 
 <img width="728" height="486" alt="image" src="https://github.com/user-attachments/assets/ab2767ca-3ebc-444d-9416-840676fb2dad" />
 
-
 ### Users Table
-* id
-* name
-* email
-* password (hashed)
-* role
+
+- id
+- name
+- email
+- password (hashed)
+- role
 
 ### Transactions Table
-* id
-* user_id
-* amount
-* type
-* category
-* date
-* note
-* is_active
+
+- id
+- user_id
+- amount
+- type
+- category
+- date
+- note
+- is_active
 
 ### Refresh Tokens Table
-* id
-* user_id
-* token
-* created_at
 
+- id
+- user_id
+- token
+- created_at
 
 ---
 
-##  Setup Instructions
+## Setup Instructions
 
 ### 1. Clone Repository
 
@@ -175,7 +176,7 @@ npm run dev
 
 ---
 
-##  API Authentication
+## API Authentication
 
 All protected routes require:
 
@@ -185,40 +186,38 @@ Authorization: Bearer <access_token>
 
 ---
 
-##  Validation & Error Handling
+## Validation & Error Handling
 
-* Input validation for all fields
-* Proper HTTP status codes used
-* Defensive programming (null/undefined checks)
-* Secure queries (parameterized SQL)
-
----
-
-##  Design Decisions
-
-* Used **PostgreSQL** for structured financial data
-* Implemented **JWT with refresh tokens** for scalable auth
-* Used **middleware-based RBAC** for clean access control
-* Designed **aggregation APIs separately from CRUD**
+- Input validation for all fields
+- Proper HTTP status codes used
+- Defensive programming (null/undefined checks)
+- Secure queries (parameterized SQL)
 
 ---
 
-##  Assumptions
+## Design Decisions
 
-* Users have predefined roles
-* Date format is standardized (`DD-MM-YYYY`)
-* Transactions belong to a single user
-* Soft delete is preferred over hard delete
-
+- Used **PostgreSQL** for structured financial data
+- Implemented **JWT with refresh tokens** for scalable auth
+- Used **middleware-based RBAC** for clean access control
+- Designed **aggregation APIs separately from CRUD**
 
 ---
 
-##  Conclusion
+## Assumptions
+
+- Users have predefined roles
+- Date format is standardized (`DD-MM-YYYY`)
+- Transactions belong to a single user
+- Soft delete is preferred over hard delete
+
+---
+
+## Conclusion
 
 This project demonstrates:
 
-* Backend architecture design
-* Role-based access control
-* Data aggregation & analytics
-* Clean and maintainable code practices
-
+- Backend architecture design
+- Role-based access control
+- Data aggregation & analytics
+- Clean and maintainable code practices
