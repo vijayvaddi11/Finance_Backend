@@ -97,7 +97,7 @@ GET /dashboard/stats
 
 ---
 
-### 🔍 Filtering API
+###  Filtering API
 
 ```
 GET /transactions/filter
@@ -125,7 +125,7 @@ Supports:
 
 ---
 
-## 🗄️ Database Design
+##  Database Design
 
 ### Users Table
 
@@ -155,7 +155,7 @@ Supports:
 
 ---
 
-## 🛠️ Setup Instructions
+##  Setup Instructions
 
 ### 1. Clone Repository
 
