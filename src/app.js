@@ -12,7 +12,7 @@ import authRouter from './routes/authRouter.js';
 import dashboardRouter from './routes/dashboardRouter.js';
 import { StatusCodes } from 'http-status-codes';
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./config/swagger.js";
+import swaggerSpec from "./config/swagger.js";
 
 const app = express();
 const PORT = process.env['PORT'] || 4000;
@@ -28,7 +28,7 @@ app.use(limiter);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // making database client accessible to all routes,
 // instead of creating a new client everytime
 app.use((req, res, next) => {
@@ -42,6 +42,34 @@ app.use('/dashboard', dashboardRouter);
 
 app.get('/', (req, res) => {
 	return res.status(StatusCodes.OK).send('Server Health OK.');
+});
+
+app.get("/swagger-docs", (req, res) => {
+  res.json(swaggerSpec);
+});
+
+app.get("/api-docs", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>API Docs</title>
+        <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
+        <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+        <script>
+          window.onload = () => {
+            window.ui = SwaggerUIBundle({
+              url: '/swagger-docs',
+              dom_id: '#swagger-ui',
+            });
+          };
+        </script>
+      </body>
+    </html>
+  `);
 });
 
 app.listen(PORT, () => {

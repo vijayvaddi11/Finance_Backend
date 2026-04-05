@@ -25,4 +25,4 @@ const options = {
 	},
 apis: [path.join(process.cwd(), "src/routes/**/*.js")]};
 
-export const swaggerSpec = swaggerJSDoc(options);
+export default swaggerJSDoc(options);
