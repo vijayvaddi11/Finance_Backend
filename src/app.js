@@ -10,6 +10,7 @@ import createDatabaseClient from './db/db.js';
 import transactionRouter from './routes/transactionRoutes.js';
 import authRouter from './routes/authRouter.js';
 import dashboardRouter from './routes/dashboardRouter.js';
+import { StatusCodes } from 'http-status-codes';
 
 const app = express();
 const PORT = process.env['PORT'] || 4000;
@@ -36,6 +37,10 @@ app.use((req, res, next) => {
 app.use('/transactions', transactionRouter);
 app.use('/auth', authRouter);
 app.use('/dashboard', dashboardRouter);
+
+app.get('/', (req, res)=>{
+  return res.status(StatusCodes.OK).send('Server Health OK.')
+})
 
 app.listen(PORT, () => {
 	console.log(`server running on port: ${PORT}`);
