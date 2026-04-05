@@ -110,8 +110,10 @@ GET /dashboard/stats
 
 ##  Database Design
 
-### Users Table
+<img width="728" height="486" alt="image" src="https://github.com/user-attachments/assets/ab2767ca-3ebc-444d-9416-840676fb2dad" />
 
+
+### Users Table
 * id
 * name
 * email
@@ -119,7 +121,6 @@ GET /dashboard/stats
 * role
 
 ### Transactions Table
-
 * id
 * user_id
 * amount
@@ -130,7 +131,6 @@ GET /dashboard/stats
 * is_active
 
 ### Refresh Tokens Table
-
 * id
 * user_id
 * token
