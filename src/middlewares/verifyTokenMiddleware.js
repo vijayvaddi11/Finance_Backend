@@ -2,23 +2,22 @@ import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
 const routeRoles = {
-     // auth routes
-     "POST /auth/register": ["admin"],
-     "POST /auth/login": ["admin", "viewer", "analyst"],
-     "POST /auth/refreshToken": ["admin", "viewer", "analyst"],
+	// auth routes
+	'POST /auth/register': ['admin'],
+	'POST /auth/login': ['admin', 'viewer', 'analyst'],
+	'POST /auth/refreshToken': ['admin', 'viewer', 'analyst'],
 
+	// transaction routes
+	'GET /transactions/': ['analyst', 'admin'],
+	'POST /transactions/create': ['admin'],
+	'PUT /transactions/edit/:id': ['admin'],
+	'DELETE /transactions/delete': ['admin'],
 
-     // transaction routes
-     "GET /transactions/": ["analyst", "admin"],
-     "POST /transactions/create": ["admin"],
-     "PUT /transactions/edit/:id": ["admin"],
-     "DELETE /transactions/delete": ["admin"],
-
-     // dashboard routes
-     "GET /dashboard/trends": ["admin", "viewer", "analyst"],
-     "GET /dashboard/categoryInsights": ["admin", "viewer", "analyst"],
-     "GET /dashboard/recentActivity": ["admin", "viewer", "analyst"],
-     "GET /dashboard/stats": ["admin", "viewer", "analyst"],
+	// dashboard routes
+	'GET /dashboard/trends': ['admin', 'viewer', 'analyst'],
+	'GET /dashboard/categoryInsights': ['admin', 'viewer', 'analyst'],
+	'GET /dashboard/recentActivity': ['admin', 'viewer', 'analyst'],
+	'GET /dashboard/stats': ['admin', 'viewer', 'analyst'],
 };
 
 const verifyToken = (req, res, next) => {
@@ -34,11 +33,13 @@ const verifyToken = (req, res, next) => {
 		req.name = decoded.name;
 		req.role = decoded.role;
 
-          const routeKey = `${req.method} ${req.baseUrl}${req.route.path}`;
-          const allowedRoles = routeRoles[routeKey];
-          if (allowedRoles && !allowedRoles.includes(req.role)) {
-               return res.status(StatusCodes.UNAUTHORIZED).json({ msg: "Unauthorized to access this route." });
-          }
+		const routeKey = `${req.method} ${req.baseUrl}${req.route.path}`;
+		const allowedRoles = routeRoles[routeKey];
+		if (allowedRoles && !allowedRoles.includes(req.role)) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ msg: 'Unauthorized to access this route.' });
+		}
 
 		next();
 	} catch (err) {

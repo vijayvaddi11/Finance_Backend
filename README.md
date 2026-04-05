@@ -21,8 +21,17 @@ The system is designed with a focus on:
 - **Node.js**
 - **Express.js**
 - **PostgreSQL (hosted by Supabase)**
-- **JWT Authentication**
-- **bcryptjs (Password hashing)**
+
+### Libraries used
+
+- node-postgres or pg
+- express
+- jsonwebtoken
+- bcryptjs
+- nodemon
+- prettier
+- dotenv
+- express-rate-limit
 
 ---
 
@@ -34,109 +43,61 @@ The system is designed with a focus on:
 - JWT-based Authentication
 - Refresh Token mechanism
 - Role-based access control: (assumed based on the details shared in requirements document)
-    - **Viewer** → Read-only access (own data)
-    - **Analyst** → Read + analytics (all data)
-    - **Admin** → Full control (CRUD + users)
-
----
 
 ### Transactions Management
 
-- Create, Update, Delete transactions
+- Create transactions that can be either income or an expense
+- Update and Delete transactions
 - Soft delete support (`is_active`)
 - Various Input validations, such as:
     - Amount (numeric)
     - Type (income/expense)
     - Date format validation
 - Partial updates supported
+- Access configured based on role
+- Filter, Sorting and Paginated supported records API
+
+### Dashboard
+
+- Trends based on weekly or monthly basis
+- Category Insights
+- Recent activity that takes last 15 transactions and calculate insights
+- overall stats
 
 ---
 
-### Dashboard APIs
+### Role-base Access
 
-#### 1. Trends
+> Based on the requirements shared
 
+Viewer: Can only view dashboard data.
+Analyst: Can view records and access insights.
+Admin: Can create, update, and manage records and users.
+
+```json
+{
+	// auth routes
+	"POST /auth/register": ["admin"],
+	"POST /auth/login": ["admin", "viewer", "analyst"],
+	"POST /auth/refreshToken": ["admin", "viewer", "analyst"],
+
+	// transaction routes
+	"GET /transactions/": ["analyst", "admin"],
+	"POST /transactions/create": ["admin"],
+	"PUT /transactions/edit/:id": ["admin"],
+	"DELETE /transactions/delete": ["admin"],
+
+	// dashboard routes
+	"GET /dashboard/trends": ["admin", "viewer", "analyst"],
+	"GET /dashboard/categoryInsights": ["admin", "viewer", "analyst"],
+	"GET /dashboard/recentActivity": ["admin", "viewer", "analyst"],
+	"GET /dashboard/stats": ["admin", "viewer", "analyst"]
+}
 ```
-GET /dashboard/trends?type=weekly | monthly
-```
-
-- Weekly / Monthly data
-- Total Income
-- Total Expense
-- Net Balance
-
----
-
-#### 2. Category Insights
-
-```
-GET /dashboard/categoryInsights?category=food
-```
-
-- Category-based aggregation
-- Income / Expense split
-
----
-
-#### 3. Recent Activity
-
-```
-GET /dashboard/recentActivity
-```
-
-- Last 15 transactions and their insights
-
----
-
-#### 4. Stats
-
-```
-GET /dashboard/stats
-```
-
-- Overall totals (income, expense, balance)
-
----
-
-## Access Control Logic
-
-| Role    | Permissions                |
-| ------- | -------------------------- |
-| Viewer  | View own data              |
-| Analyst | View all data + insights   |
-| Admin   | Full access (CRUD + users) |
-
----
 
 ## Database Design
 
 <img width="728" height="486" alt="image" src="https://github.com/user-attachments/assets/ab2767ca-3ebc-444d-9416-840676fb2dad" />
-
-### Users Table
-
-- id
-- name
-- email
-- password (hashed)
-- role
-
-### Transactions Table
-
-- id
-- user_id
-- amount
-- type
-- category
-- date
-- note
-- is_active
-
-### Refresh Tokens Table
-
-- id
-- user_id
-- token
-- created_at
 
 ---
 
@@ -186,21 +147,14 @@ Authorization: Bearer <access_token>
 
 ---
 
-## Validation & Error Handling
-
-- Input validation for all fields
-- Proper HTTP status codes used
-- Defensive programming (null/undefined checks)
-- Secure queries (parameterized SQL)
-
----
-
 ## Design Decisions
 
 - Used **PostgreSQL** for structured financial data
 - Implemented **JWT with refresh tokens** for scalable auth
 - Used **middleware-based RBAC** for clean access control
 - Designed **aggregation APIs separately from CRUD**
+- Rate limiting to protect against DDOS attacks and Bots
+- Structured routes and middlewares for code readability
 
 ---
 
@@ -208,6 +162,8 @@ Authorization: Bearer <access_token>
 
 - Users have predefined roles
 - Date format is standardized (`DD-MM-YYYY`)
+- Only admin can crate users and users shouldn't be allowed to register themselves.
+- category can be any string instead of a restricted set of values
 - Transactions belong to a single user
 - Soft delete is preferred over hard delete
 

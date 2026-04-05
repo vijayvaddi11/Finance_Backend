@@ -4,10 +4,42 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { fetchUserDetailsByEmail, createUser } from '../db/dbFunctions.js';
 
-
 const router = express.Router();
 
-// POST: /register - register user
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a User
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Vijay
+ *               email:
+ *                 type: string
+ *                 example: vijay@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: 123456
+ *               role:
+ *                 type: string
+ *                 example: admin
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ */
 router.post('/register', async (req, res) => {
 	try {
 		const { name, email, password, role } = req.body;
@@ -41,7 +73,7 @@ router.post('/register', async (req, res) => {
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const result = await createUser(req.client, name, email, hashedPassword, role);
-		res.json({
+		res.status(StatusCodes.OK).json({
 			message: 'user registered successfully',
 			user: result.rows[0],
 		});
@@ -53,7 +85,32 @@ router.post('/register', async (req, res) => {
 	}
 });
 
-// POST: /login - login user
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: User Login
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: testadmin@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: testadmin123
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ */
 router.post('/login', async (req, res) => {
 	try {
 		const { email, password } = req.body;
@@ -109,8 +166,27 @@ router.post('/login', async (req, res) => {
 	}
 });
 
-
-// POST: /refreshtoken - creates new refresh token
+/**
+ * @swagger
+ * /auth/refreshToken:
+ *   post:
+ *     summary: refresh access token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ */
 router.post('/refreshToken', async (req, res) => {
 	const { refreshToken } = req.body;
 	if (!refreshToken) {
@@ -144,7 +220,9 @@ router.post('/refreshToken', async (req, res) => {
 			accessToken: newAccessToken,
 		});
 	} catch (err) {
-		res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Refresh token expired or invalid' });
+		res.status(StatusCodes.UNAUTHORIZED).json({
+			message: 'Refresh token expired or invalid',
+		});
 	}
 });
 

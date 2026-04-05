@@ -13,14 +13,50 @@ import { isNumeric, isValidDate, toBoolean } from '../utils/utils.js';
 
 const router = express.Router();
 
-// GET: / - view transactions
+/**
+ * @swagger
+ * /transactions/:
+ *   get:
+ *     summary: Get transactions
+ *     tags: [Transactions]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *         example: expense
+ *       - in: query
+ *         name: category
+ *         required: false
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: amountMin
+ *         required: false
+ *         schema:
+ *           type: number
+  *       - in: query
+ *         name: amountMax
+ *         required: false
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: size
+ *         schema:
+ *           type: number
+ *         example: 15
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 router.get('/', verifyJWT, async (req, res) => {
 	try {
-		if (!['viewer', 'analyst', 'admin'].includes(req.role)) {
-			return res
-				.status(StatusCodes.UNAUTHORIZED)
-				.json({ msg: 'Unauthorized to access transactions data' });
-		}
 		const user = req.userId;
 		const role = req.role;
 		const filter = req.query;
@@ -34,13 +70,56 @@ router.get('/', verifyJWT, async (req, res) => {
 	}
 });
 
-// POST: /create - create transactions
+
+/**
+ * @swagger
+ * /transactions/create:
+ *   post:
+ *     summary: Create a new transaction
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - amount
+ *               - type
+ *               - category
+ *               - date
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 500
+ *               type:
+ *                 type: string
+ *                 enum: [income, expense]
+ *                 example: expense
+ *               category:
+ *                 type: string
+ *                 example: food
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 example: 2024-01-10
+ *               note:
+ *                 type: string
+ *                 example: Lunch with friends
+ *     responses:
+ *       200:
+ *         description: Transaction created successfully
+ *       400:
+ *         description: Missing or invalid input data
+ *       401:
+ *         description: Unauthorized (invalid or missing token)
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/create', verifyJWT, async (req, res) => {
 	try {
-		if (!role=='admin') {
-			return res.status(StatusCodes.UNAUTHORIZED).json({ msg: 'Access denied' });
-		}
-
 		const { amount, type, category, date, note } = req.body;
 
 		if (!amount || !type || !category || !date) {
@@ -97,12 +176,54 @@ router.post('/create', verifyJWT, async (req, res) => {
 	}
 });
 
-// PUT: /edit/:id - update transactions
+/**
+ * @swagger
+ * /transactions/edit/{id}:
+ *   put:
+ *     summary: Update a transaction by ID
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Transaction ID to update
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     requestBody:
+ *       required: true
+ *       description: Fields to update (only allowed fields will be updated)
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *               type:
+ *                 type: string
+ *                 enum: [income, expense]
+ *               category:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               note:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Transaction updated successfully
+ *       400:
+ *         description: Invalid input or transaction not found
+ *       401:
+ *         description: Unauthorized (invalid or missing token)
+ *       500:
+ *         description: Internal server error
+ */
 router.put('/edit/:id', verifyJWT, async (req, res) => {
 	try {
-		if (!['admin', 'viewer'].includes(req.role)) {
-			return res.status(StatusCodes.FORBIDDEN).json({ msg: 'Access denied' });
-		}
 		const { id } = req.params;
 
 		for (const [k, v] of Object.entries(req.body)) {
@@ -146,7 +267,6 @@ router.put('/edit/:id', verifyJWT, async (req, res) => {
 			}
 		}
 		const existingTransaction = await fetchTransactionsById(req.client, id);
-		console.log(existingTransaction);
 		if (!existingTransaction) {
 			return res
 				.status(StatusCodes.BAD_REQUEST)
@@ -171,16 +291,50 @@ router.put('/edit/:id', verifyJWT, async (req, res) => {
 		return res.json(responseJson);
 	} catch (err) {
 		console.log(err);
-		res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error updating transaction' });
+		res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+			msg: 'Error updating transaction',
+		});
 	}
 });
 
-// DELETE: /delete/:id - delete transaction
+/**
+ * @swagger
+ * /transactions/delete/{id}:
+ *   delete:
+ *     summary: Delete a transaction by ID (supports soft delete)
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Transaction ID to delete
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       description: Optional flag to perform soft delete instead of permanent delete
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               softDelete:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Transaction deleted successfully
+ *       304:
+ *         description: No transaction deleted (not modified)
+ *       401:
+ *         description: Unauthorized (invalid or missing token)
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/delete/:id', verifyJWT, async (req, res) => {
 	try {
-		if (!['admin', 'viewer'].includes(req.role)) {
-			return res.status(StatusCodes.FORBIDDEN).json({ msg: 'Access denied' });
-		}
 		const { id } = req.params;
 		const requestBody = req.body;
 
@@ -205,7 +359,9 @@ router.delete('/delete/:id', verifyJWT, async (req, res) => {
 		}
 	} catch (err) {
 		console.log(err);
-		res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error updating transaction' });
+		res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+			msg: 'Error updating transaction',
+		});
 	}
 });
 

@@ -9,7 +9,7 @@ const createDatabaseClient = async () => {
 	await client.connect().catch((err) => {
 		console.error(`failed to connect to database: ${err}`);
 	});
-	console.log('Database client connection successful')
+	console.log('Database client connection successful');
 	return client;
 };
 export default createDatabaseClient;

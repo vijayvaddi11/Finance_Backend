@@ -11,6 +11,8 @@ import transactionRouter from './routes/transactionRoutes.js';
 import authRouter from './routes/authRouter.js';
 import dashboardRouter from './routes/dashboardRouter.js';
 import { StatusCodes } from 'http-status-codes';
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
 
 const app = express();
 const PORT = process.env['PORT'] || 4000;
@@ -26,8 +28,8 @@ app.use(limiter);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// making database client accessible to all routes, 
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// making database client accessible to all routes,
 // instead of creating a new client everytime
 app.use((req, res, next) => {
 	req.client = databaseClient;
@@ -38,9 +40,9 @@ app.use('/transactions', transactionRouter);
 app.use('/auth', authRouter);
 app.use('/dashboard', dashboardRouter);
 
-app.get('/', (req, res)=>{
-  return res.status(StatusCodes.OK).send('Server Health OK.')
-})
+app.get('/', (req, res) => {
+	return res.status(StatusCodes.OK).send('Server Health OK.');
+});
 
 app.listen(PORT, () => {
 	console.log(`server running on port: ${PORT}`);

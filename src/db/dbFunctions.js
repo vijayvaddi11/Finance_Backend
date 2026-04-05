@@ -121,7 +121,6 @@ export const viewTransactions = async (client, role, userId, filters) => {
 
 	if (conditions.length > 0) {
 		query += ' WHERE ';
-		console.log(conditions);
 		let conditionsQuery = conditions.join(' AND ');
 		query += conditionsQuery;
 	}
