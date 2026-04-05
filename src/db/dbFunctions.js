@@ -60,13 +60,84 @@ export const deleteTransactionByID = async(client, id) =>{
     );
 }
 
-export const viewTransactions = async(client,userid)=>{
-     return await client.query(
-          `SELECT * from transactions
-          WHERE user_id = $1 and is_active = true`,
-          [userid]
-     );
-}
+
+//building filter query based on query params
+export const viewTransactions = async (client, role, userId, filters) => {
+  let query = `SELECT * FROM transactions`;
+  let conditions = []
+  let values = []
+  let index = 1;
+  if(role=='viewer'){
+    conditions.push(`user_id = $1`)
+    values.push(userId)
+    index++;
+  }
+   
+  if (filters.type) {
+    conditions.push(`type = $${index}`)
+    values.push(filters.type);
+    index++;
+  }
+  if (filters.category) {
+    conditions.push(`category = $${index}`);
+    values.push(filters.category);
+    index++;
+  }
+  if (filters.is_active) {
+    conditions.push(`is_active = $${index}`)
+    values.push(filters.is_active === "true");
+    index++;
+  }
+  if (filters.dateFrom) {
+    conditions.push(`date >= $${index}`)
+    values.push(filters.dateFrom);
+    index++;
+  }
+  if (filters.dateTo) {
+    conditions.push(`date <= $${index}`)
+    values.push(filters.dateTo);
+    index++;
+  }
+  if (filters.amountMin) {
+    conditions.push(`amount >= $${index}`)
+    values.push(filters.amountMin);
+    index++;
+  }
+  if (filters.amountMax) {
+    conditions.push(`amount <= $${index}`)
+    values.push(filters.amountMax);
+    index++;
+  }
+
+  if(conditions.length > 0){
+    query+=' WHERE '
+    console.log(conditions)
+    let conditionsQuery = conditions.join(' AND ')
+    query+=conditionsQuery;
+  }
+
+  const allowedSortFields = ["amount", "date", "category", "type"];
+  if (filters.sortBy && allowedSortFields.includes(filters.sortBy)) {
+    const order =
+      filters.order && filters.order.toLowerCase() === "desc"
+        ? "DESC"
+        : "ASC";
+    query+=` ORDER BY ${filters.sortBy} ${order} `
+  }
+
+  const size = parseInt(filters.size) || 25;
+  //if limit not provided, send all results
+  if(size){
+    query+=` LIMIT $${index} `
+    values.push(size)
+    index++;
+  }
+
+  const page = parseInt(filters.page) || 1;
+  query+= ` OFFSET $${index} `
+  values.push((page - 1)*size);
+  return await client.query(query, values);
+};
 
 
 

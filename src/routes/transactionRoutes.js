@@ -22,7 +22,9 @@ router.get("/", verifyJWT, async (req, res) => {
         .json({ msg: "Unauthorized to access transactions data" });
     }
     const user = req.userId;
-    const transactions = await viewTransactions(req.client, user);
+    const role = req.role;
+    const filter = req.query;
+    const transactions = await viewTransactions(req.client, user, role, filter);
     return res.status(StatusCodes.OK).json(transactions.rows);
   } catch (err) {
     console.log("Error in viewing transactions", err);
@@ -186,7 +188,8 @@ router.delete("/delete/:id", verifyJWT, async (req, res) => {
     const requestBody = req.body;
 
     const softDelete = toBoolean(requestBody["softDelete"]);
-    // if softDelete is selected, we'll disable the transaction instead of completely deleting the record.
+    // if softDelete is selected, 
+    // we'll disable the transaction instead of completely deleting the record.
     let response;
     if (softDelete) {
       response = await softDeleteTransactionByID(req.client, id);
