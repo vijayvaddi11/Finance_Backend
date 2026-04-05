@@ -67,3 +67,69 @@ export const viewTransactions = async(client,userid)=>{
           [userid]
      );
 }
+
+
+
+//dasboard
+export const fetchRecordsByDateForUser = async (client, userId, fromDate) => {
+  return await client.query(
+    `SELECT * FROM transactions 
+     WHERE user_id = $1 AND date >= $2 AND is_active = true`,
+    [userId, fromDate]
+  );
+};
+
+export const fetchRecordsByDate = async (client, fromDate) => {
+  return await client.query(
+    `SELECT * FROM transactions 
+     WHERE date >= $1 AND is_active = true`,
+    [fromDate]
+  );
+};
+
+
+export const fetchByCategoryForUser = async (client, userId, category) => {
+  return await client.query(
+    `SELECT * FROM transactions 
+     WHERE user_id = $1 AND category ILIKE $2 AND is_active = true`,
+    [userId, `%${category}%`]
+  );
+};
+
+export const fetchByCategory = async (client, category) => {
+  return await client.query(
+    `SELECT * FROM transactions 
+     WHERE category ILIKE $1 AND is_active = true`,
+    [`%${category}%`]
+  );
+};
+
+export const fetchRecentForUser = async (client, userId) => {
+  return await client.query(
+    `SELECT * FROM transactions 
+     WHERE user_id = $1 AND is_active = true
+     ORDER BY date DESC LIMIT 15`,
+    [userId]
+  );
+};
+
+export const fetchRecent = async (client) => {
+  return await client.query(
+    `SELECT * FROM transactions 
+     WHERE is_active = true
+     ORDER BY date DESC LIMIT 15`
+  );
+};
+
+export const fetchAllForUser = async (client, userId) => {
+  return await client.query(
+    `SELECT * FROM transactions WHERE user_id = $1 AND is_active = true`,
+    [userId]
+  );
+};
+
+export const fetchAll = async (client) => {
+  return await client.query(
+    `SELECT * FROM transactions WHERE is_active = true`
+  );
+};

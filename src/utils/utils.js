@@ -20,3 +20,20 @@ export const toBoolean = (val) => {
   }
   return false;
 };
+
+
+export const getInsights = (records) => {
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  for (const r of records) {
+    if (r.type === "income") totalIncome += Number(r.amount);
+    else if (r.type === "expense") totalExpense += Number(r.amount);
+  }
+
+  return {
+    totalIncome,
+    totalExpense,
+    netBalance: totalIncome - totalExpense,
+  };
+};

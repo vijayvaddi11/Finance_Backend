@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
+// POST: /register - register user
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -47,6 +48,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// POST: /login - login user
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -103,6 +105,7 @@ router.post("/login", async (req, res) => {
 });
 
 
+// POST: /refreshtoken - creates new refresh token
 router.post("/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {

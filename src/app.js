@@ -5,10 +5,14 @@ dotenv.config({
 
 import express from "express";
 import createClient from "./db/db.js";
-import verifyJWT from "./middlewares/verifyTokenMiddleware.js";
 import transactionRouter from "./routes/transactionRoutes.js";
 import authRouter from './routes/authRouter.js'
+import dashboardRouter from './routes/dashboardRouter.js'
 import rateLimit from "express-rate-limit";
+
+
+
+
 
 const app = express();
 const client = await createClient(); 
@@ -32,24 +36,12 @@ app.use((req, res, next) => {
 });
 
 
+
 app.use('/transactions',transactionRouter)
 app.use('/auth',authRouter)
+app.use('/dashboard',dashboardRouter)
 
-app.get("/getUserDetails", verifyJWT, async (req, res) => {
-  const userRole = req.role;
-  if (userRole != "admin") {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      msg: "Not authorized to access user details",
-    });
-  }
 
-  const userId = req.userId;
-  const users = await client.query(
-     `SELECT * FROM users WHERE id = $1`,
-     [userId]
-);
-  return res.json(users.rows);
-});
 
 
 

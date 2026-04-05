@@ -9,13 +9,14 @@ import {
   updateTransactionByID,
   viewTransactions
 } from '../db/dbFunctions.js'
+import { isNumeric ,isValidDate,toBoolean} from "../utils/utils.js";
 
 const router = express.Router();
 
 // GET: / - view transactions
 router.get("/", verifyJWT, async (req, res) => {
   try {
-    if (!["admin", "analyst", "admin"].includes(req.role)) {
+    if (!["viewer", "analyst", "admin"].includes(req.role)) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ msg: "Unauthorized to access transactions data" });
@@ -34,7 +35,7 @@ router.get("/", verifyJWT, async (req, res) => {
 // POST: /create - create transactions
 router.post("/create", verifyJWT,  async (req, res) => {
   try {
-    if (req.role != "admin") {
+    if (!(["admin","viewer"].includes(req.role))) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ msg: "Access denied" });
@@ -42,10 +43,17 @@ router.post("/create", verifyJWT,  async (req, res) => {
 
     const { amount, type, category, date, note } = req.body;
 
+
+    if (!amount || !type || !category || !date) {
+  return res.status(StatusCodes.BAD_REQUEST).json({
+    msg: "Missing required fields"
+  });
+}
+
     for (const [k, v] of Object.entries(req.body)) {
       switch (k) {
         case "amount": {
-          if (!isNumeric(v) || v.trim().length === 0) {
+          if (!isNumeric(v)) {
             return res
               .status(StatusCodes.BAD_REQUEST)
               .json({ msg: "Please send a valid numeric for amount" });
@@ -93,7 +101,7 @@ router.post("/create", verifyJWT,  async (req, res) => {
 // PUT: /edit/:id - update transactions
 router.put("/edit/:id", verifyJWT, async (req, res) => {
   try {
-    if (req.role !== "admin") {
+    if (!(["admin","viewer"].includes(req.role))) {
       return res.status(StatusCodes.FORBIDDEN).json({ msg: "Access denied" });
     }
     const { id } = req.params;
@@ -101,7 +109,7 @@ router.put("/edit/:id", verifyJWT, async (req, res) => {
     for (const [k, v] of Object.entries(req.body)) {
       switch (k) {
         case "amount": {
-          if (!isNumeric(v) || v.trim().length === 0) {
+          if (!isNumeric(v)) {
             return res
               .status(StatusCodes.BAD_REQUEST)
               .json({ msg: "Please send a valid numeric for amount" });
@@ -139,6 +147,7 @@ router.put("/edit/:id", verifyJWT, async (req, res) => {
       }
     }
     const existingTransaction = await fetchTransactionsById(req.client, id);
+    console.log(existingTransaction)
     if (!existingTransaction) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -170,7 +179,7 @@ router.put("/edit/:id", verifyJWT, async (req, res) => {
 // DELETE: /delete/:id - delete transaction
 router.delete("/delete/:id", verifyJWT, async (req, res) => {
   try {
-    if (req.role !== "admin") {
+    if (!(["admin","viewer"].includes(req.role))) {
       return res.status(StatusCodes.FORBIDDEN).json({ msg: "Access denied" });
     }
     const { id } = req.params;
