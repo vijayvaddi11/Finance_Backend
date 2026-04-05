@@ -63,7 +63,7 @@ export const deleteTransactionByID = async(client, id) =>{
 export const viewTransactions = async(client,userid)=>{
      return await client.query(
           `SELECT * from transactions
-          WHERE user_id = $1`,
+          WHERE user_id = $1 and is_active = true`,
           [userid]
      );
 }
