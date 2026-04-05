@@ -37,7 +37,7 @@ router.get('/', verifyJWT, async (req, res) => {
 // POST: /create - create transactions
 router.post('/create', verifyJWT, async (req, res) => {
 	try {
-		if (!['admin', 'viewer'].includes(req.role)) {
+		if (!role=='admin') {
 			return res.status(StatusCodes.UNAUTHORIZED).json({ msg: 'Access denied' });
 		}
 
@@ -171,7 +171,7 @@ router.put('/edit/:id', verifyJWT, async (req, res) => {
 		return res.json(responseJson);
 	} catch (err) {
 		console.log(err);
-		res.status(500).json({ msg: 'Error updating transaction' });
+		res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error updating transaction' });
 	}
 });
 
@@ -205,7 +205,7 @@ router.delete('/delete/:id', verifyJWT, async (req, res) => {
 		}
 	} catch (err) {
 		console.log(err);
-		res.status(500).json({ msg: 'Error updating transaction' });
+		res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error updating transaction' });
 	}
 });
 

@@ -1,7 +1,7 @@
 import pg from 'pg';
 const { Client } = pg;
 
-const createClient = async () => {
+const createDatabaseClient = async () => {
 	const connectionString = process.env['DATABASE_URL'];
 	const client = new Client({
 		connectionString,
@@ -9,7 +9,7 @@ const createClient = async () => {
 	await client.connect().catch((err) => {
 		console.error(`failed to connect to database: ${err}`);
 	});
-	// console.log('Database connection successful')
+	console.log('Database client connection successful')
 	return client;
 };
-export default createClient;
+export default createDatabaseClient;

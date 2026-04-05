@@ -1,9 +1,9 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { fetchUserDetailsByEmail, createUser } from '../db/dbFunctions.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import verifyToken from '../middlewares/verifyTokenMiddleware.js';
+import { fetchUserDetailsByEmail, createUser } from '../db/dbFunctions.js';
+
 
 const router = express.Router();
 
@@ -11,7 +11,6 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
 	try {
 		const { name, email, password, role } = req.body;
-
 		//user validation
 		if (!name?.trim() || !email?.trim() || !password.trim()) {
 			return res
@@ -121,8 +120,6 @@ router.post('/refreshToken', async (req, res) => {
 	}
 
 	try {
-		const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-
 		const tokenCheck = await req.client.query(
 			`SELECT * FROM refresh_tokens WHERE token = $1`,
 			[refreshToken]
@@ -147,7 +144,7 @@ router.post('/refreshToken', async (req, res) => {
 			accessToken: newAccessToken,
 		});
 	} catch (err) {
-		res.status(403).json({ message: 'Refresh token expired or invalid' });
+		res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Refresh token expired or invalid' });
 	}
 });
 

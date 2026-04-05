@@ -3,14 +3,10 @@ import { StatusCodes } from 'http-status-codes';
 import verifyJWT from '../middlewares/verifyTokenMiddleware.js';
 import { getInsights } from '../utils/utils.js';
 import {
-	fetchRecordsByDateForUser,
 	fetchRecordsByDate,
-	fetchByCategoryForUser,
 	fetchByCategory,
 	fetchRecent,
-	fetchRecentForUser,
 	fetchAll,
-	fetchAllForUser,
 } from '../db/dbFunctions.js';
 
 const router = express.Router();
@@ -18,7 +14,6 @@ const router = express.Router();
 router.get('/trends', verifyJWT, async (req, res) => {
 	try {
 		const { type } = req.query;
-
 		if (!['weekly', 'monthly'].includes(type)) {
 			return res
 				.status(StatusCodes.BAD_REQUEST)
@@ -37,19 +32,9 @@ router.get('/trends', verifyJWT, async (req, res) => {
 				.status(StatusCodes.BAD_REQUEST)
 				.json({ msg: `Invalid query param ${type}` });
 		}
-
-		let result;
-		if (req.role === 'viewer') {
-			result = await fetchRecordsByDateForUser(req.client, req.userId, fromDate);
-		} else if (['analyst', 'admin'].includes(req.role)) {
-			result = await fetchRecordsByDate(req.client, fromDate);
-		} else {
-			return res.status(StatusCodes.FORBIDDEN).json({ msg: 'Unauthorized' });
-		}
-
+		const result = await fetchRecordsByDate(req.client, fromDate);
 		const records = result.rows;
 		const insights = getInsights(records);
-
 		return res.json({
 			...insights,
 			transactions: records,
@@ -65,21 +50,10 @@ router.get('/trends', verifyJWT, async (req, res) => {
 router.get('/categoryInsights', verifyJWT, async (req, res) => {
 	try {
 		const { category } = req.query;
-
 		if (!category?.trim()) {
 			return res.status(StatusCodes.BAD_REQUEST).json({ msg: 'Category required' });
 		}
-
-		let result;
-
-		if (req.role === 'viewer') {
-			result = await fetchByCategoryForUser(req.client, req.userId, category);
-		} else if (['analyst', 'admin'].includes(req.role)) {
-			result = await fetchByCategory(req.client, category);
-		} else {
-			return res.status(StatusCodes.FORBIDDEN).json({ msg: 'Unauthorized' });
-		}
-
+		const result = await fetchByCategory(req.client, category);
 		const records = result.rows;
 		const insights = getInsights(records);
 
@@ -97,19 +71,9 @@ router.get('/categoryInsights', verifyJWT, async (req, res) => {
 
 router.get('/recentActivity', verifyJWT, async (req, res) => {
 	try {
-		let result;
-
-		if (req.role === 'viewer') {
-			result = await fetchRecentForUser(req.client, req.userId);
-		} else if (['analyst', 'admin'].includes(req.role)) {
-			result = await fetchRecent(req.client);
-		} else {
-			return res.status(StatusCodes.FORBIDDEN).json({ msg: 'Unauthorized' });
-		}
-
+		const result = await fetchRecent(req.client);
 		const records = result.rows;
 		const insights = getInsights(records);
-
 		return res.json({
 			...insights,
 			transactions: records,
@@ -124,19 +88,9 @@ router.get('/recentActivity', verifyJWT, async (req, res) => {
 
 router.get('/stats', verifyJWT, async (req, res) => {
 	try {
-		let result;
-
-		if (req.role === 'viewer') {
-			result = await fetchAllForUser(req.client, req.userId);
-		} else if (['analyst', 'admin'].includes(req.role)) {
-			result = await fetchAll(req.client);
-		} else {
-			return res.status(StatusCodes.FORBIDDEN).json({ msg: 'Unauthorized' });
-		}
-
+		const result = await fetchAll(req.client);
 		const records = result.rows;
 		const insights = getInsights(records);
-
 		return res.json(insights);
 	} catch (err) {
 		console.log(err);
