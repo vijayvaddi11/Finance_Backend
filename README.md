@@ -21,7 +21,7 @@ Deployed API DOCS (Swagger) - https://finance-backend-self.vercel.app/api-docs
 
 ```
 
-Postman collection - [Finance Backend - Zorvyn Postman Collection](https://github.com/vijayvaddi11/Finance_Backend/blob/main/postman/Finance%20backend%20-%20zorvyn.postman_collection.json)
+Postman collection - [Finance Backend - Collection](https://github.com/vijayvaddi11/Finance_Backend/blob/main/postman/Finance%20backend%20-%20zorvyn.postman_collection.json)
 
 ## Overview
 
@@ -91,7 +91,7 @@ The system is designed with a focus on:
 
 ### Role-base Access
 
-> Based on the requirements shared
+> Based on the requirements
 
 Viewer: Can only view dashboard data.
 Analyst: Can view records and access insights.
