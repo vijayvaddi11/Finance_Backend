@@ -3,6 +3,23 @@
 Deployed API URL - https://finance-backend-self.vercel.app/
 
 Deployed API DOCS (Swagger) - https://finance-backend-self.vercel.app/api-docs
+```
+	# use these credentials in '/login' to login and generate jwt to access the protected routes
+	# (admin, viewer and analyst creds are shared below, you can also be created using the /register route as an admin)
+
+	# admin
+	email: testadmin@gmail.com
+	password: testadmin123
+
+	# analyst
+	email: testanalyst123@gmail.com
+	password: testanalyst123
+
+	#viewer
+	email: testuser2@gmail.com
+	password: testuser2
+
+```
 
 Postman collection - [Finance Backend - Zorvyn Postman Collection](https://github.com/vijayvaddi11/Finance_Backend/blob/main/postman/Finance%20backend%20-%20zorvyn.postman_collection.json)
 
