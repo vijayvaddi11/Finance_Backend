@@ -188,42 +188,60 @@ router.post('/login', async (req, res) => {
  *         description: User created successfully
  */
 router.post('/refreshToken', async (req, res) => {
-	const { refreshToken } = req.body;
-	if (!refreshToken) {
-		return res
-			.status(StatusCodes.UNAUTHORIZED)
-			.json({ message: 'Refresh token missing' });
-	}
+  const { refreshToken } = req.body;
 
-	try {
-		const tokenCheck = await req.client.query(
-			`SELECT * FROM refresh_tokens WHERE token = $1`,
-			[refreshToken]
-		);
-		if (tokenCheck.rowCount === 0) {
-			return res
-				.status(StatusCodes.FORBIDDEN)
-				.json({ message: 'Invalid refresh token' });
-		}
+  if (!refreshToken) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Refresh token missing' });
+  }
 
-		const newAccessToken = jwt.sign(
-			{
-				userId: user.id,
-				name: user.name,
-				role: user.role,
-			},
-			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: '1h' }
-		);
+  try {
+    
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-		res.json({
-			accessToken: newAccessToken,
-		});
-	} catch (err) {
-		res.status(StatusCodes.UNAUTHORIZED).json({
-			message: 'Refresh token expired or invalid',
-		});
-	}
+    // Check DB
+    const tokenCheck = await req.client.query(
+      `SELECT * FROM refresh_tokens WHERE token = $1`,
+      [refreshToken]
+    );
+
+    if (tokenCheck.rowCount === 0) {
+      return res
+        .status(StatusCodes.FORBIDDEN)
+        .json({ message: 'Invalid refresh token' });
+    }
+
+    // Fetch user
+    const userResult = await req.client.query(
+      `SELECT id, name, role FROM users WHERE id = $1`,
+      [decoded.userId]
+    );
+
+    const user = userResult.rows[0];
+
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      {
+        userId: user.id,
+        name: user.name,
+        role: user.role,
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ accessToken: newAccessToken });
+
+  } catch (err) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: 'Refresh token expired or invalid',
+    });
+  }
+});
 });
 
 export default router;
